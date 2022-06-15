@@ -27,13 +27,13 @@ This notebook demonstrates the steps in the process of making predictions starti
 
 ```{r}
 
-library(sf)
-library(dplyr)
-library(mapview)
-library(ggplot2)
-library(rgdal)
-library(glmnet)
-library(cowplot)
+suppressPackageStartupMessages(library(sf))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(mapview))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(rgdal))
+suppressPackageStartupMessages(library(glmnet))
+suppressPackageStartupMessages(library(patchwork))
 
 ```
 
@@ -52,14 +52,14 @@ label_shp_reprojected <- st_transform(label_shp, crs = target_crs) # if needed, 
 Inspect data
 
 ```{r}
-plot(label_shp[,"ErosPr"], axes = T) # Plot variable "soil erosion index" ErosPr
+plot(label_shp[,"ErosPr"], axes = T, main= "Soil Erosion") # Plot variable "soil erosion index" ErosPr
 ```
 
 ## 2. Create grid
 
 In this step we create a grid bound by the bounding box of the label data and to the specified resolution. This allows us later to perform a spatial join on the datasets to extract label values at lon/lat coordinates for use in the API File Query.
 
-The target resolution in this step represents the resolution at which label predictions are desired in later steps. At `target_resolution <- .01`, the resolution will be equal to the MOSAIKS dense grid. Resolution can be adjusted to make predictions at finer resolution than the native resolution of input label data.
+The target resolution in this step represents the resolution at which label predictions are desired in later steps. At `target_resolution <- .01`, the resolution will be equal to the MOSAIKS dense grid. Resolution can be adjusted to make predictions at finer resolution than the native resolution of input label data, up to .01x.01 degrees.
 
 ```{r}
 
@@ -80,20 +80,22 @@ grid <- st_make_grid(label_shp_reprojected,
 Plot grid over shapefile
 
 ```{r}
-ggplot() +
-  geom_sf(data = label_shp_reprojected, fill = 'white', lwd = 0.09) +
-  geom_sf(data = grid_square, fill = 'transparent', lwd = 0.1) +
-  coord_sf(datum = 4326)  +
-  labs(x = "") +
-  labs(y = "")
+# Black and white plot
+# ggplot() +
+#   geom_sf(data = label_shp_reprojected, fill = 'white', lwd = 0.09) +
+#   geom_sf(data = grid, fill = 'transparent', lwd = 0.1) +
+#   coord_sf(datum = 4326)  +
+#   labs(x = "") +
+#   labs(y = "")
 
+# Plot grid over shp with values
 ggplot() +
   geom_sf(data = label_shp_reprojected, aes(fill = ErosPr), lwd = 0.09) +
   scale_fill_gradientn(colors = sf.colors()) + 
-  geom_sf(data = grid_square, fill = 'transparent', lwd = 0.01) +
+  geom_sf(data = grid, fill = 'transparent', lwd = 0.01) +
   coord_sf(datum = 4326)  +
-  labs(x = "") +
-  labs(y = "")
+  labs(x = "", y = "", fill = "Soil Erosion")
+  
 
 ```
 
@@ -111,24 +113,26 @@ label_df<- st_join(grid_sf, label_shp_reprojected[,"ErosPr"], join = st_within, 
 
 Plot check
 
-```{r}
+```{r, echo = FALSE, out.width="100%", out.height="100%"}
 #plot(label_shp_reprojected[,"ErosPr"], axes = T) # plot shapefile
 #plot(label_df[,"ErosPr"], axes = T) #plot newly generated grid data frame
 
 shp_plot <- ggplot() +
   geom_sf(data = label_shp_reprojected, aes(fill = ErosPr)) +
   scale_fill_gradientn(colors = sf.colors()) +
-  ggtitle("Shapefile")
+  ggtitle("Shapefile") +
+  labs(fill = "Soil Erosion")
 
 grid_plot <- ggplot() +
-  geom_sf(data = label_df, aes(color = ErosPr), size = 0.5) +
+  geom_sf(data = label_df, aes(color = ErosPr), size = 0.2) +
   scale_color_gradientn(colors = sf.colors()) +
-  ggtitle("Gridded points")
+  ggtitle("Gridded points") +
+  labs(color = "Soil Erosion")
 
-grid.arrange(shp_plot, grid_plot, ncol = 2)
+shp_plot + grid_plot + plot_layout(guides = "collect") & theme(legend.position = 'bottom')
 ```
 
-## 4. Output the grid to CSV to obtain features from File Query
+## 4. Output the grid to CSV to obtain features from File Query (uncomment line 140)
 
 ```{r}
 # Split sfc point geometry into individual lon/lat values
@@ -137,7 +141,7 @@ label_df$lat <- st_coordinates(label_df)[,2]
 
 # Upon inspection, can confirm that no NAs are generated in label_df
 
-st_write(label_df, paste0(input_dir, "ecu_erosion_label.csv")) # Write to csv - sfc point geomtery is automatically dropped. Results in 3 columns of label value, longitude, and latitude
+#st_write(label_df, paste0(input_dir, "ecu_erosion_label.csv")) # Write to csv - sfc point geomtery is automatically dropped. Results in 3 columns of label value, longitude, and latitude
 ```
 
 
@@ -153,7 +157,7 @@ Load and inspect features
 #load features (this may take a few mins), and label data
 features <- read.csv(paste0(input_dir,'Mosaiks_features.csv'), header = T, stringsAsFactors = F)
 
-head(features, 5)
+#head(features, 5)
 ```
 
 Load and inspect label data
@@ -176,7 +180,7 @@ df <- left_join(label, features, by = c("lat"="Lat", "lon" = "Lon"))
 #drop NAs
 df <- na.omit(df)
 
-head(df, 5)
+head(df, c(5, 10)) # limited to 10 columns for sake of space. Actual dataframe contains 4003 columns
 ```
 
 ## 6. Run a ridge regression of label on MOSAIKS features
@@ -261,23 +265,22 @@ labs(x = "Predicted", y = "Observed")
 
 Finally, we can compare the spatial distribution of label (i.e. observed) values with predicted values.
 
-```{r}
-# max_observed <- max(map_plot$observed
+```{r, echo = FALSE, out.width="100%", out.height="100%"}
+scale_max <- max(map_plot$observed, map_plot$predicted)
 #plot observed 
-# observed <- 
-  ggplot(data = map_plot, aes(x=lon, y=lat)) +
+observed <- ggplot(data = map_plot, aes(x=lon, y=lat)) +
            geom_point(aes(color= observed), size = 3, alpha = 0.5) + 
-           scale_color_distiller(palette = "Spectral", limits = c(0, max_observed)) +
-           labs(color = "observed soil erosion (%)",
-                x = "Longitude", y = "Latitude") 
+           scale_color_distiller(palette = "Spectral", limits = c(0, scale_max)) +
+           #labs(color = "observed soil erosion (%)") +
+            labs(x = "", y = "", title = "Observed", color = "Soil Erosion")
 
 #plot predicted 
-# predicted <- 
-  ggplot(data = map_plot, aes(x=lon, y=lat)) +
+predicted <- ggplot(data = map_plot, aes(x=lon, y=lat)) +
            geom_point(aes(color= predicted), size = 3, alpha = 0.5) + 
-           scale_color_distiller(palette = "Spectral", limits = c(0, max_observed)) +
-           labs(color = "predicted soil erosion (%)",
-               x = "Longitude", y = "Latitude") 
+           scale_color_distiller(palette = "Spectral", limits = c(0, scale_max)) +
+           #labs(color = "predicted soil erosion (%)") +
+           labs(x = "", y = "", title = "Predicted", color = "Soil Erosion")
 
-#grid.arrange(observed, predicted, ncol = 2)
+observed + predicted + plot_layout(guides = "collect") & theme(legend.position = 'bottom')
+
 ```
