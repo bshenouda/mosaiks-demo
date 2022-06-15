@@ -136,7 +136,7 @@ label_df$lat <- st_coordinates(label_df)[,2]
 
 # Upon inspection, can confirm that no NAs are generated in label_df
 
-#st_write(label_df, paste0(input_dir, "ecu_erosion_label.csv")) # Write to csv - sfc point geomtery is automatically dropped. Results in 3 columns of label value, longitude, and latitude
+st_write(label_df, paste0(input_dir, "ecu_erosion_label.csv")) # Write to csv - sfc point geomtery is automatically dropped. Results in 3 columns of label value, longitude, and latitude
 ```
 
 # Making predictions
