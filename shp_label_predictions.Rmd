@@ -2,8 +2,8 @@
 title: "Shapefile to predictions"
 author: "Benjamin Shenouda, Trinetta Chong, Eugenio Noda"
 date: '2022-06-09'
-output: html_document
-editor_options: 
+output: rmarkdown::github_document
+editor_options:
   chunk_output_type: inline
 ---
 
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 This notebook demonstrates the steps in the process of making predictions starting from your own shapefile label data. The process can be divided into 7 steps
 
 1.  Load and prepare the shape file
-2.  Create a grid according to the desired resolution
+2.  Create a grid according to the desired resolution at which you would like to generate predictions
 3.  Spatial join the grid with the shapefile attributes
 4.  Output the new grid label dataset to a CSV file for use in the MOSAIKS API File Query
 5.  Merge the label dataset with the MOSAIKS features obtained through the File Query
