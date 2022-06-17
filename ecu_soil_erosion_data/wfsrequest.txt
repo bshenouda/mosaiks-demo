@@ -1,0 +1,1 @@
+https://geonode.wfp.org/geoserver/wfs?format_options=charset:UTF-8&typename=geonode:ecu_ica_landdegradation_geonode_jul2018&outputFormat=SHAPE-ZIP&version=1.0.0&service=WFS&request=GetFeature
