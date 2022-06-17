@@ -150,7 +150,7 @@ Load and inspect features
 #load features (this may take a few mins), and label data
 features <- read.csv(paste0(input_dir,'Mosaiks_features.csv'), header = T, stringsAsFactors = F)
 
-head(features, 5, 10) # Limit output to 10 columns for sake of space. Actual dataframe contains 4002 columns.
+head(features, c(5, 10)) # Limit output to 10 columns for sake of space. Actual dataframe contains 4002 columns.
 ```
 
 Load and inspect label data
