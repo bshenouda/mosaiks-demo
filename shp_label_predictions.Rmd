@@ -41,8 +41,8 @@ Prepare directories and files
 
 ```{r}
 
-input_dir <-  '~/CEGA/api_testing/ecu_soil_erosion/ecu_ica_landdegradation_geonode_jul2018/'
-label_shp_name <-  'ecu_ica_landdegradation_geonode_jul2018.shp'
+input_dir <-  './'
+label_shp_name <-  'ecu_soil_erosion_data/ecu_ica_landdegradation_geonode_jul2018.shp'
 target_crs <-  4326 # epsg:4326, the projection of the MOSAIKS grid
 
 label_shp <- st_read(paste0(input_dir, label_shp_name)) # read in shapefile using sf package
@@ -80,13 +80,6 @@ grid <- st_make_grid(label_shp_reprojected,
 Plot grid over shapefile
 
 ```{r}
-# Black and white plot
-# ggplot() +
-#   geom_sf(data = label_shp_reprojected, fill = 'white', lwd = 0.09) +
-#   geom_sf(data = grid, fill = 'transparent', lwd = 0.1) +
-#   coord_sf(datum = 4326)  +
-#   labs(x = "") +
-#   labs(y = "")
 
 # Plot grid over shp with values
 ggplot() +
@@ -132,16 +125,16 @@ grid_plot <- ggplot() +
 shp_plot + grid_plot + plot_layout(guides = "collect") & theme(legend.position = 'bottom')
 ```
 
-## 4. Output the grid to CSV to obtain features from File Query (uncomment line 140)
+## 4. Output the grid to CSV to obtain features from File Query
 
-```{r}
+```{r, echo = FALSE}
 # Split sfc point geometry into individual lon/lat values
 label_df$lon <- st_coordinates(label_df)[,1] 
 label_df$lat <- st_coordinates(label_df)[,2]
 
 # Upon inspection, can confirm that no NAs are generated in label_df
 
-#st_write(label_df, paste0(input_dir, "ecu_erosion_label.csv")) # Write to csv - sfc point geomtery is automatically dropped. Results in 3 columns of label value, longitude, and latitude
+st_write(label_df, paste0(input_dir, "ecu_erosion_label.csv")) # Write to csv - sfc point geomtery is automatically dropped. Results in 3 columns of label value, longitude, and latitude
 ```
 
 
@@ -157,7 +150,7 @@ Load and inspect features
 #load features (this may take a few mins), and label data
 features <- read.csv(paste0(input_dir,'Mosaiks_features.csv'), header = T, stringsAsFactors = F)
 
-#head(features, 5)
+head(features, c(5, 10)) # Limit output to 10 columns for sake of space. Actual dataframe contains 4002 columns.
 ```
 
 Load and inspect label data
@@ -176,9 +169,12 @@ Here, we merge our downloaded features ("X") with our label ("y") based on the l
 ```{r}
 #merge features with label
 df <- left_join(label, features, by = c("lat"="Lat", "lon" = "Lon"))
+print(paste(nrow(df), "observations in merged dataframe"))
 
 #drop NAs
-df <- na.omit(df)
+num_na <- nrow(df) - nrow(na.omit(df)) # get number of rows with NAs
+df <- na.omit(df) # drop NAs from dataframe
+print(paste0(num_na, " rows with NAs dropped. ", nrow(df), " observations in final dataframe."))
 
 head(df, c(5, 10)) # limited to 10 columns for sake of space. Actual dataframe contains 4003 columns
 ```

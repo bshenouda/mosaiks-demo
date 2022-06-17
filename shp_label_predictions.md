@@ -10,7 +10,8 @@ predictions starting from your own shapefile label data. The process can
 be divided into 7 steps
 
 1.  Load and prepare the shape file
-2.  Create a grid according to the desired resolution
+2.  Create a grid according to the desired resolution at which you would
+    like to generate predictions
 3.  Spatial join the grid with the shapefile attributes
 4.  Output the new grid label dataset to a CSV file for use in the
     MOSAIKS API File Query
@@ -34,15 +35,15 @@ suppressPackageStartupMessages(library(patchwork))
 Prepare directories and files
 
 ``` r
-input_dir <-  '~/CEGA/api_testing/ecu_soil_erosion/ecu_ica_landdegradation_geonode_jul2018/'
-label_shp_name <-  'ecu_ica_landdegradation_geonode_jul2018.shp'
+input_dir <-  './'
+label_shp_name <-  'ecu_soil_erosion_data/ecu_ica_landdegradation_geonode_jul2018.shp'
 target_crs <-  4326 # epsg:4326, the projection of the MOSAIKS grid
 
 label_shp <- st_read(paste0(input_dir, label_shp_name)) # read in shapefile using sf package
 ```
 
     ## Reading layer `ecu_ica_landdegradation_geonode_jul2018' from data source 
-    ##   `/Users/benshen/CEGA/api_testing/ecu_soil_erosion/ecu_ica_landdegradation_geonode_jul2018/ecu_ica_landdegradation_geonode_jul2018.shp' 
+    ##   `/Users/benshen/CEGA/api_testing/ecu_soil_erosion_data/ecu_ica_landdegradation_geonode_jul2018.shp' 
     ##   using driver `ESRI Shapefile'
     ## Simple feature collection with 224 features and 9 fields
     ## Geometry type: MULTIPOLYGON
@@ -93,14 +94,6 @@ grid <- st_make_grid(label_shp_reprojected,
 Plot grid over shapefile
 
 ``` r
-# Black and white plot
-# ggplot() +
-#   geom_sf(data = label_shp_reprojected, fill = 'white', lwd = 0.09) +
-#   geom_sf(data = grid, fill = 'transparent', lwd = 0.1) +
-#   coord_sf(datum = 4326)  +
-#   labs(x = "") +
-#   labs(y = "")
-
 # Plot grid over shp with values
 ggplot() +
   geom_sf(data = label_shp_reprojected, aes(fill = ErosPr), lwd = 0.09) +
@@ -127,17 +120,11 @@ Plot check
 
 <img src="shp_label_predictions_files/figure-gfm/unnamed-chunk-7-1.png" width="100%" height="100%" />
 
-## 4. Output the grid to CSV to obtain features from File Query (uncomment line 140)
+## 4. Output the grid to CSV to obtain features from File Query
 
-``` r
-# Split sfc point geometry into individual lon/lat values
-label_df$lon <- st_coordinates(label_df)[,1] 
-label_df$lat <- st_coordinates(label_df)[,2]
-
-# Upon inspection, can confirm that no NAs are generated in label_df
-
-st_write(label_df, paste0(input_dir, "ecu_erosion_label.csv")) # Write to csv - sfc point geomtery is automatically dropped. Results in 3 columns of label value, longitude, and latitude
-```
+    ## Writing layer `ecu_erosion_label' to data source 
+    ##   `./ecu_erosion_label.csv' using driver `CSV'
+    ## Writing 8074 features with 3 fields and geometry type Point.
 
 # Making predictions
 
@@ -153,8 +140,21 @@ Load and inspect features
 #load features (this may take a few mins), and label data
 features <- read.csv(paste0(input_dir,'Mosaiks_features.csv'), header = T, stringsAsFactors = F)
 
-#head(features, 5)
+head(features, c(5, 10)) # Limit output to 10 columns for sake of space. Actual dataframe contains 4002 columns.
 ```
+
+    ##      Lat     Lon          X        X.1        X.2          X.3        X.4
+    ## 1 -0.925 -77.305 0.06687240 0.12104105 0.08847056 4.674185e-03 0.06932612
+    ## 2 -1.025 -77.305 0.06070738 0.08679849 0.09487789 2.784403e-04 0.05385127
+    ## 3 -1.075 -77.305 0.07271444 0.10513716 0.09843686 1.760430e-05 0.06603616
+    ## 4 -1.125 -77.305 0.07507450 0.10844446 0.10641507 2.963531e-05 0.06811752
+    ## 5 -1.175 -77.305 0.07678302 0.10888809 0.10648130 6.757053e-05 0.07007837
+    ##         X.5        X.6       X.7
+    ## 1 0.1553144 0.10463028 0.5648764
+    ## 2 0.1146531 0.08121043 0.6064681
+    ## 3 0.1374398 0.08497297 0.6135941
+    ## 4 0.1511175 0.09372936 0.6323367
+    ## 5 0.1531822 0.09893279 0.6484400
 
 Load and inspect label data
 
@@ -184,19 +184,36 @@ specified grid resolution of the generated label grid)**</u>
 ``` r
 #merge features with label
 df <- left_join(label, features, by = c("lat"="Lat", "lon" = "Lon"))
+print(paste(nrow(df), "observations in merged dataframe"))
+```
 
+    ## [1] "8074 observations in merged dataframe"
+
+``` r
 #drop NAs
-df <- na.omit(df)
+num_na <- nrow(df) - nrow(na.omit(df)) # get number of rows with NAs
+df <- na.omit(df) # drop NAs from dataframe
+print(paste0(num_na, " rows with NAs dropped. ", nrow(df), " observations in final dataframe."))
+```
 
+    ## [1] "1220 rows with NAs dropped. 6854 observations in final dataframe."
+
+``` r
 head(df, c(5, 10)) # limited to 10 columns for sake of space. Actual dataframe contains 4003 columns
 ```
 
-    ##    ErosPr     lon    lat          X        X.1        X.2          X.3        X.4       X.5        X.6
-    ## 1 21.4603 -79.105 -4.975 0.16587991 0.42999491 0.13084383 0.0547036342 0.24663417 0.5299929 0.20095651
-    ## 2 21.4603 -79.055 -4.975 0.13666266 0.25447765 0.13536981 0.0285860952 0.15804757 0.3605235 0.18017522
-    ## 3 21.4603 -79.005 -4.975 0.10358148 0.17465281 0.11631227 0.0156488381 0.10863219 0.2195943 0.12967739
-    ## 4 21.4603 -79.255 -4.925 0.04870118 0.08788871 0.05642445 0.0027059496 0.04756720 0.1608833 0.08749487
-    ## 5 21.4603 -79.205 -4.925 0.05220752 0.08975811 0.04581843 0.0007529163 0.05369745 0.1631556 0.06835839
+    ##    ErosPr     lon    lat          X        X.1        X.2          X.3
+    ## 1 21.4603 -79.105 -4.975 0.16587991 0.42999491 0.13084383 0.0547036342
+    ## 2 21.4603 -79.055 -4.975 0.13666266 0.25447765 0.13536981 0.0285860952
+    ## 3 21.4603 -79.005 -4.975 0.10358148 0.17465281 0.11631227 0.0156488381
+    ## 4 21.4603 -79.255 -4.925 0.04870118 0.08788871 0.05642445 0.0027059496
+    ## 5 21.4603 -79.205 -4.925 0.05220752 0.08975811 0.04581843 0.0007529163
+    ##          X.4       X.5        X.6
+    ## 1 0.24663417 0.5299929 0.20095651
+    ## 2 0.15804757 0.3605235 0.18017522
+    ## 3 0.10863219 0.2195943 0.12967739
+    ## 4 0.04756720 0.1608833 0.08749487
+    ## 5 0.05369745 0.1631556 0.06835839
 
 ## 6. Run a ridge regression of label on MOSAIKS features
 
