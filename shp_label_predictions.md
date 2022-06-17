@@ -12,13 +12,18 @@ be divided into 7 steps
 1.  Load and prepare the shape file
 2.  Create a grid according to the desired resolution at which you would
     like to generate predictions
-3.  Spatial join the grid with the shapefile attributes
+3.  Create crosswalk from the grid to the polygon, matching each point
+    in the grid to corresponding polygon value
 4.  Output the new grid label dataset to a CSV file for use in the
     MOSAIKS API File Query
-5.  Merge the label dataset with the MOSAIKS features obtained through
-    the File Query
-6.  Train data
-7.  Make predictions
+5.  Using the label crosswalk from step 3, merge label data with the
+    MOSAIKS features obtained through the API File Query
+6.  With the merged dataset containing point data for labels and
+    features, split dataset into training and testing sets to learn the
+    relationship between the label attribute and the visual imagery
+    captured by the features using a ridge regression
+7.  Use the trained model from the previous step to make predictions on
+    the test subset, evaluating performance and visualizing the results
 
 ## 1. Preparing shapefile
 
@@ -76,6 +81,12 @@ label predictions are desired in later steps. At
 dense grid. Resolution can be adjusted to make predictions at finer
 resolution than the native resolution of input label data, up to .01x.01
 degrees.
+
+Increasing the resolution will increase compute time. To take full
+advantage of the platform, resolution should be set to the maximum
+`target_resolution <- .01` degrees. This demo uses a resolution
+`target_resolution <- .05` to save compute time for illustration
+purposes.
 
 ``` r
 target_resolution <- .05 # Set target resolution. A resolution of .01 is equal to the .01 x .01 dense grid of the MOSAIKS API.
