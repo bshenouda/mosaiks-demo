@@ -196,16 +196,16 @@ index <- sample(1:nrow(df), 0.8*nrow(df))
 train <- df[index,] # Create the training data 
 test <- df[-index,] # Create the test data
 
-#label_value <- ErosPr # set label attribute name in the dataframe, modify according to dataset
+label_value <- "ErosPr" # set label attribute name in the dataframe, modify according to dataset
 
 # Create X matricies and y vectors from the train and test sets
 # Note that the glmnet function does not work with dataframes, so we need to create a numeric matrix for the training features 
 
-X_train <- as.matrix(subset(train, select = -c(ErosPr)))  #change value to match label attribute
-y_train <- train$ErosPr                                   #change value to match label attribute
+X_train <- as.matrix(subset(train, select = -c(get(label_value))))
+y_train <- train[,label_value]
 
-X_test <- as.matrix(subset(test, select = -c(ErosPr)))    #change value to match label attribute
-y_test <- test$ErosPr                                     #change value to match label attribute
+X_test <- as.matrix(subset(test, select = -c(get(label_value))))
+y_test <- test[,label_value]
 
 #save test set lat/lons for later
 plotting_coords <- subset(test, select = c(lon,lat))
