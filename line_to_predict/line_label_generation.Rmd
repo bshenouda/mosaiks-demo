@@ -55,9 +55,9 @@ ggplot() +
 
 ## 2. Create grid
 
-In this step, we create a grid of polygon cells, and constrain it by the bounding box of the label data. The specified resolution represents the desired resolution at which predictions are later made.
+Similar to the process for polygon data, in this step, we create a *grid of polygon cells*, and constrain it by the bounding box of the label data. The specified resolution represents the desired resolution at which predictions are later made.
 
-The grid cells allow us to see sum the total length of road segments that fall within each cell, and generate in a next step a tabular dataset of lon/lat coordinates with a corresponding value equal to the sum of all road lengths within that cell.
+The grid cells allow us to sum the total length of road segments that fall within each cell, and generate in a next step a tabular dataset of lon/lat coordinates (at the centroid of each cell) with a corresponding value equal to the sum of all road lengths within that cell.
 
 A `target_resolution <- .01` signifies a 0.01 x 0.01 degree latitude-longitude grid, centered at 0.005 degree intervals (0.01 degrees is approximately equivalent to 1.11 km at the equator using an equal angle grid). This resolution is equivalent to that of the MOSAIKS API features. 
 
@@ -71,13 +71,12 @@ label_bbox <- st_bbox(label_shp_reprojected, crs = target_crs) # get bounding bo
 #bbox_poly <- bbox_to_poly(label_bbox)
 #st_as_sfc(label_bbox)
 
-
 # Creates grid of at specified resolution starting at the min x and min y coordinates of the label bounding box
 
 grid_cells <- st_make_grid(label_shp_reprojected, 
         cellsize = target_resolution, # cell size intervals for the grid, can be modified for higher or lower resolution -> .01 is equal to the MOSAIKS dense grid
         what = 'polygons', # to render polgyon square cells
-        offset = c(round(label_bbox[1], 3), round(label_bbox[2], 3))) # starting at the min x and y of the bbox rounded to 3 digit precision of the MOSAIKS grid
+        offset = c(round(label_bbox[1], 2), round(label_bbox[2], 2))) # starting at the min x and y of the bbox rounded to 3 digit precision of the MOSAIKS grid
 
 ```
 
@@ -93,7 +92,7 @@ ggplot() +
 
 ```
 
-## 3. Spatially join the grid with label shapefile and sum lengths of road in each cell (at the .01 resolution, this takes a bit of time)
+## 3. Spatially join the grid with label shapefile and sum lengths of road in each cell (at .01 resolution, this takes a bit of time)
 
 ```{r}
 # rename files for easier reading
