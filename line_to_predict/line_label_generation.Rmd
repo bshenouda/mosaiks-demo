@@ -190,5 +190,7 @@ grid_points$lat <- round(st_coordinates(grid_points)[,2], 3)
 grid_points <- grid_points[,c("lon", "lat", "length.x")]
 
 st_write(grid_points, paste0(input_dir, "dc_roads.csv")) # Write to csv - sfc point geomtery is automatically dropped. Results in 3 columns of label value, longitude, and latitude
+
+dc_roads <- read.csv("dc_roads.csv")
 ```
 
