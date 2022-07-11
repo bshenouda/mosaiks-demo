@@ -20,7 +20,6 @@ This notebook demonstrates the steps to prepare vector data to make predictions 
 ```{r}
 
 suppressPackageStartupMessages(library(sf))
-suppressPackageStartupMessages(library(sp))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(mapview))
 suppressPackageStartupMessages(library(ggplot2))
@@ -94,7 +93,7 @@ ggplot() +
 
 ## 3. Spatially join the grid with label shapefile and sum lengths of road in each cell (at .01 resolution, this takes a bit of time)
 
-```{r}
+```{r, cache = TRUE}
 # rename files for easier reading
 line <- label_shp_reprojected
 poly <- grid_cells
