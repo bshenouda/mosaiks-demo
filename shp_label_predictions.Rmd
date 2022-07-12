@@ -156,6 +156,7 @@ Notice that each row represents the centroid of a unique grid cell, with the fir
 ```{r}
 #load features (this may take a few mins), and label data
 features <- read.csv(paste0(input_dir,'Mosaiks_features.csv'), header = T, stringsAsFactors = F)
+features <- features[with(features, order(Lat, Lon)),] #sort
 
 head(features, c(5, 10)) # Limit output to 10 columns for sake of space. Actual dataframe contains 4002 columns.
 ```
@@ -167,6 +168,9 @@ Similarly, each row in the label data represents the centroid of a unique grid c
 ```{r}
 label_filename = 'ecu_erosion_label.csv' # filename of the output csv from step 4
 label <- read.csv(paste0(input_dir, label_filename), header = T, stringsAsFactors = F)
+label$lat <- round(label$lat, 3) #3 decimal places
+label$lon <- round(label$lon, 3) #3 decimal places
+label <- label[with(label, order(lat, lon)),] #sort
 
 head(label, 5)
 ```
@@ -183,6 +187,7 @@ print(paste(nrow(df), "observations in merged dataframe"))
 #drop NAs
 num_na <- nrow(df) - nrow(na.omit(df)) # get number of rows with NAs
 df <- na.omit(df) # drop NAs from dataframe
+
 print(paste0(num_na, " rows with NAs dropped. ", nrow(df), " observations in final dataframe."))
 
 head(df, c(5, 10)) # limited to 10 columns for sake of space. Actual dataframe contains 4003 columns
@@ -216,6 +221,7 @@ y_test <- test[,label_value]
 
 #save test set lat/lons for plotting later
 plotting_coords <- subset(test, select = c(lon,lat))
+plotting_coords_train <- subset(train, select = c(lon,lat))
 ```
 
 Within our training dataset, we choose the penalization parameter (i.e. lambda) in the ridge regression via k-fold cross-validation (here, k=5).
@@ -254,7 +260,7 @@ print(paste0('r2: ', r2))
 We can also make a scatter plot of labeled data against predictions.
 
 ```{r}
-#clip bounds so min value = 0 because we know that treecover cannot be below zero. 
+#clip bounds so min value = 0 because we know that label value cannot be below zero. 
 y_pred[y_pred<0] <- 0
 
 #combine lat/lons with test and predicted values into a dataframe
@@ -271,21 +277,55 @@ labs(x = "Predicted", y = "Observed")
 Finally, we can compare the spatial distribution of label (i.e. observed) values with predicted values.
 
 ```{r, echo = FALSE, out.width="100%", out.height="100%"}
-scale_max <- max(map_plot$observed, map_plot$predicted)
+#make predictions in train set for plotting maps
+y_pred_train <- predict(cv_ridge, s = optimal_lambda, newx = X_train)
+y_pred_train[y_pred_train<0] <- 0
+map_plot_train <- data.frame(plotting_coords_train, y_pred_train, y_train) 
+names(map_plot_train) <- c('lon','lat','predicted','observed')
+map_plot_train <- rbind(map_plot_train, map_plot)
+
+scale_max <- max(map_plot_train$observed, map_plot_train$predicted)
+#scale_max <- max(map_plot$observed, map_plot$predicted)
+
 #plot observed 
-observed <- ggplot(data = map_plot, aes(x=lon, y=lat)) +
-           geom_point(aes(color= observed), size = 3, alpha = 0.5) + 
-           scale_color_distiller(palette = "Spectral", limits = c(0, scale_max)) +
-           #labs(color = "observed soil erosion (%)") +
-            labs(x = "Longitude", y = "Latitude", title = "Observed", color = "Soil Erosion")
+observed <- ggplot() +
+           geom_point(data = map_plot_train, 
+                      aes(x=lon, y=lat, color= observed), 
+                      size = 0.3, alpha = 0.8) +
+           scale_color_distiller(palette = "YlGn", limits = c(0, scale_max)) +
+           #labs(color = "observed soil erosion") +
+           labs(x = "Longitude", y = "Latitude", title = "Observed", color = "Soil Erosion") +
+           geom_sf(data =label_shp_reprojected, size = 0.5, alpha = 0.05)  
 
 #plot predicted 
-predicted <- ggplot(data = map_plot, aes(x=lon, y=lat)) +
-           geom_point(aes(color= predicted), size = 3, alpha = 0.5) + 
-           scale_color_distiller(palette = "Spectral", limits = c(0, scale_max)) +
-           #labs(color = "predicted soil erosion (%)") +
-           labs(x = "Longitude", y = "Latitude", title = "Predicted", color = "Soil Erosion")
+predicted <- ggplot() +
+           geom_point(data = map_plot_train, 
+                      aes(x=lon, y=lat, color= predicted), 
+                      size = 0.3, alpha = 0.8) + 
+           scale_color_distiller(palette = "YlGn", limits = c(0, scale_max)) +
+           #labs(color = "predicted soil erosion") +
+           labs(x = "Longitude", y = "Latitude", title = "Predicted", color = "Soil Erosion") +
+           geom_sf(data =label_shp_reprojected, size = 0.5, alpha = 0.05)  
+           
 
 observed + predicted + plot_layout(guides = "collect") & theme(legend.position = 'bottom')
 
 ```
+Example application: 
+One could predict soil erosion risk at higher spatial resolution. For example, areas along the Napo River in east Ecuador face a higher risk of soil erosion.
+
+```{r}
+#plot  
+ggplot() +
+geom_point(data = map_plot_train, 
+  aes(x=lon, y=lat, color= predicted), 
+  size = 3, alpha = 0.9) + 
+scale_color_distiller(palette = "YlGn", limits = c(0, scale_max)) +
+labs(x = "Longitude", y = "Latitude", title = "Napo River Basin", color = "Soil Erosion") +
+geom_sf(data =label_shp_reprojected, size = 0.5, alpha = 0.001) +
+  coord_sf(
+  xlim = c(-78, -75),
+  ylim = c(-1.5, 0),
+)
+```
+
