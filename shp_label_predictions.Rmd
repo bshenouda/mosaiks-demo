@@ -315,6 +315,10 @@ Example application:
 One could predict soil erosion risk at higher spatial resolution. For example, areas along the Napo River in east Ecuador face a higher risk of soil erosion.
 
 ```{r}
+#load water areas in ecuador 
+water_shp <- st_read(paste0(input_dir, 'ECU_wat/ECU_water_areas_dcw.shp')) # read in shapefile 
+water_shp_reprojected <- st_transform(water_shp, crs = target_crs) # reproject water layer
+
 #plot  
 ggplot() +
 geom_point(data = map_plot_train, 
@@ -322,10 +326,11 @@ geom_point(data = map_plot_train,
   size = 3, alpha = 0.9) + 
 scale_color_distiller(palette = "YlGn", limits = c(0, scale_max)) +
 labs(x = "Longitude", y = "Latitude", title = "Napo River Basin", color = "Soil Erosion") +
-geom_sf(data =label_shp_reprojected, size = 0.5, alpha = 0.001) +
+geom_sf(data =label_shp_reprojected, size = 0.3, alpha = 0.01, color = "grey39") +
+geom_sf(data =water_shp_reprojected, size = 0.1, alpha = 0.1, color = "blue1") + #water
   coord_sf(
   xlim = c(-78, -75),
-  ylim = c(-1.5, 0),
+  ylim = c(-1.2, 0),
 )
 ```
 
