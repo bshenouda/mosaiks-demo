@@ -107,7 +107,7 @@ grid_sf <- st_as_sf(grid) # transform grid from sfc object to sf object for merg
 
 #label_df<- st_join(grid_sf, label_shp_reprojected[,"ErosPr"], join = st_within, left = FALSE) # spatial join grid over shapefile, "ErosPr" is the desired attribute column of the example dataset
 
-label_df <- st_join(grid_sf, label_shp_reprojected[,c("ErosPr","DPA_CANTON","DPA_PROVIN")], join = st_within, left = FALSE) # spatial join grid over shapefile, "ErosPr" is the desired attribute column of the example dataset
+label_df <- st_join(grid_sf, label_shp_reprojected[,c("ErosPr","DPA_CANTON")], join = st_within, left = FALSE) # spatial join grid over shapefile, "ErosPr" is the desired attribute column of the example dataset
 
 ```
 
@@ -223,10 +223,10 @@ plotting_coords_train <- subset(train, select = c(lon,lat))
 
 label_value <- "ErosPr" # set label attribute name in the dataframe, modify according to dataset
 
-X_train <- as.matrix(subset(train, select = -c(get(label_value),lat,lon,DPA_PROVIN,DPA_CANTON)))
+X_train <- as.matrix(subset(train, select = -c(get(label_value),lat,lon,DPA_CANTON)))
 y_train <- train[,label_value]
 
-X_test <- as.matrix(subset(test, select = -c(get(label_value),lat,lon,DPA_PROVIN,DPA_CANTON)))
+X_test <- as.matrix(subset(test, select = -c(get(label_value),lat,lon,DPA_CANTON)))
 y_test <- test[,label_value]
 
 ```
@@ -319,7 +319,7 @@ observed + predicted + plot_layout(guides = "collect") & theme(legend.position =
 
 ```
 Example application:  
-One could predict soil erosion risk at higher spatial resolution. For example, areas along the Napo River in east Ecuador face a higher risk of soil erosion.
+When predicting at a higher spatial resolution, you could recover local topographic effects. For example, areas along the Napo River in east Ecuador face a higher risk of soil erosion.
 
 ```{r}
 #load water areas in ecuador 
