@@ -105,7 +105,9 @@ In this step, we overlay the generated grid on the shapefile, and perform a spat
 
 grid_sf <- st_as_sf(grid) # transform grid from sfc object to sf object for merging
 
-label_df<- st_join(grid_sf, label_shp_reprojected[,"ErosPr"], join = st_within, left = FALSE) # spatial join grid over shapefile, "ErosPr" is the desired attribute column of the example dataset
+#label_df<- st_join(grid_sf, label_shp_reprojected[,"ErosPr"], join = st_within, left = FALSE) # spatial join grid over shapefile, "ErosPr" is the desired attribute column of the example dataset
+
+label_df <- st_join(grid_sf, label_shp_reprojected[,c("ErosPr","DPA_CANTON")], join = st_within, left = FALSE) # spatial join grid over shapefile, "ErosPr" is the desired attribute column of the example dataset
 
 ```
 
@@ -190,7 +192,7 @@ df <- na.omit(df) # drop NAs from dataframe
 
 print(paste0(num_na, " rows with NAs dropped. ", nrow(df), " observations in final dataframe."))
 
-head(df, c(5, 10)) # limited to 10 columns for sake of space. Actual dataframe contains 4003 columns
+head(df, c(5, 10)) # limited to 10 columns for sake of space
 ```
 
 ## 6. Run a ridge regression of label on MOSAIKS features
@@ -200,6 +202,10 @@ This step learns how the visual information in the satellite imagery, as capture
 Before performing a ridge regression, we first split our data into train (80%) and test (20%). We will estimate the models on the train set and then evaluate predictions in the test set. This separation of train and test set is important to address issues related to overfitting.
 
 ```{r}
+#create dummy variables for fixed effects
+fe <- as.data.frame(model.matrix(~ df$DPA_CANTON - 1))
+df <- cbind(df,fe)
+
 ### Split data into training and test sets
 set.seed(100) 
 
@@ -208,20 +214,21 @@ index <- sample(1:nrow(df), 0.8*nrow(df))
 train <- df[index,] # Create the training data 
 test <- df[-index,] # Create the test data
 
-label_value <- "ErosPr" # set label attribute name in the dataframe, modify according to dataset
+#save test set lat/lons for plotting later
+plotting_coords <- subset(test, select = c(lon,lat))
+plotting_coords_train <- subset(train, select = c(lon,lat))
 
 # Create X matricies and y vectors from the train and test sets
 # Note that the glmnet function does not work with dataframes. Instead, they need to be converted to  numeric matrices  
 
-X_train <- as.matrix(subset(train, select = -c(get(label_value))))
+label_value <- "ErosPr" # set label attribute name in the dataframe, modify according to dataset
+
+X_train <- as.matrix(subset(train, select = -c(get(label_value),lat,lon,DPA_CANTON)))
 y_train <- train[,label_value]
 
-X_test <- as.matrix(subset(test, select = -c(get(label_value))))
+X_test <- as.matrix(subset(test, select = -c(get(label_value),lat,lon,DPA_CANTON)))
 y_test <- test[,label_value]
 
-#save test set lat/lons for plotting later
-plotting_coords <- subset(test, select = c(lon,lat))
-plotting_coords_train <- subset(train, select = c(lon,lat))
 ```
 
 Within our training dataset, we choose the penalization parameter (i.e. lambda) in the ridge regression via k-fold cross-validation (here, k=5).
@@ -292,7 +299,7 @@ observed <- ggplot() +
            geom_point(data = map_plot_train, 
                       aes(x=lon, y=lat, color= observed), 
                       size = 0.3, alpha = 0.8) +
-           scale_color_distiller(palette = "YlGn", limits = c(0, scale_max)) +
+           scale_color_distiller(palette = "Spectral", limits = c(0, scale_max)) +
            #labs(color = "observed soil erosion") +
            labs(x = "Longitude", y = "Latitude", title = "Observed", color = "Soil Erosion") +
            geom_sf(data =label_shp_reprojected, size = 0.5, alpha = 0.05)  
@@ -302,7 +309,7 @@ predicted <- ggplot() +
            geom_point(data = map_plot_train, 
                       aes(x=lon, y=lat, color= predicted), 
                       size = 0.3, alpha = 0.8) + 
-           scale_color_distiller(palette = "YlGn", limits = c(0, scale_max)) +
+           scale_color_distiller(palette = "Spectral", limits = c(0, scale_max)) +
            #labs(color = "predicted soil erosion") +
            labs(x = "Longitude", y = "Latitude", title = "Predicted", color = "Soil Erosion") +
            geom_sf(data =label_shp_reprojected, size = 0.5, alpha = 0.05)  
@@ -311,8 +318,8 @@ predicted <- ggplot() +
 observed + predicted + plot_layout(guides = "collect") & theme(legend.position = 'bottom')
 
 ```
-Example application: 
-One could predict soil erosion risk at higher spatial resolution. For example, areas along the Napo River in east Ecuador face a higher risk of soil erosion.
+Example application:  
+When predicting at a higher spatial resolution, you could recover local topographic effects. For example, areas along the Napo River in east Ecuador face a higher risk of soil erosion.
 
 ```{r}
 #load water areas in ecuador 
@@ -323,13 +330,13 @@ water_shp_reprojected <- st_transform(water_shp, crs = target_crs) # reproject w
 ggplot() +
 geom_point(data = map_plot_train, 
   aes(x=lon, y=lat, color= predicted), 
-  size = 3, alpha = 0.9) + 
-scale_color_distiller(palette = "YlGn", limits = c(0, scale_max)) +
+  size = 3.6, alpha = 0.99) + 
+scale_color_distiller(palette = "Spectral", limits = c(0,30)) +
 labs(x = "Longitude", y = "Latitude", title = "Napo River Basin", color = "Soil Erosion") +
 geom_sf(data =label_shp_reprojected, size = 0.3, alpha = 0.01, color = "grey39") +
-geom_sf(data =water_shp_reprojected, size = 0.1, alpha = 0.1, color = "blue1") + #water
+geom_sf(data =water_shp_reprojected, size = 0.1, alpha = 0.0001, color = "white") + #water
   coord_sf(
-  xlim = c(-78, -75),
+  xlim = c(-77.5, -75),
   ylim = c(-1.2, 0),
 )
 ```
