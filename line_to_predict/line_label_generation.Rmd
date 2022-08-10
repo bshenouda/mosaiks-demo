@@ -20,6 +20,8 @@ This notebook demonstrates the steps to prepare vector data to make predictions 
 ```{r}
 
 suppressPackageStartupMessages(library(sf))
+suppressPackageStartupMessages(library(raster))
+suppressPackageStartupMessages(library(terra))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(mapview))
 suppressPackageStartupMessages(library(ggplot2))
@@ -38,16 +40,19 @@ Prepare directories and files
 
 input_dir <-  './' #input path to working directory
 label_shp_name <-  'TRAN_District_of_Columbia_State_Shape/Shape/Trans_RoadSegment.shp'
+boundary_name <- 'Washington_DC_Boundary/Washington_DC_Boundary.shp'
 target_crs <-  4326 # epsg:4326, the projection of the MOSAIKS grid
 
 label_shp <- st_read(paste0(input_dir, label_shp_name)) # read in shapefile using sf package
 label_shp_reprojected <- st_transform(label_shp, crs = target_crs) # if needed, reproject shapefile to epsg:4326
+boundary <- st_read(paste0(input_dir, boundary_name))
 ```
 
 Inspect shapefile and data
 
 ```{r}
 ggplot() +
+  geom_sf(data = boundary) +
   geom_sf(data = label_shp_reprojected[,"permanent_"]) +
   labs(title = "DC Permanent Roads")
 ```
@@ -84,6 +89,7 @@ Plot grid over vector shapefile
 ```{r}
 # Plot grid over lines
 ggplot() +
+  geom_sf(data = boundary) +
   geom_sf(data = label_shp_reprojected[,"permanent_"], lwd = 0.09) +
   geom_sf(data = grid_cells, fill = 'transparent', lwd = 0.5) +
   coord_sf(datum = 4326)  +
@@ -113,7 +119,7 @@ grid_length <- group_by(join, id) %>% #  sum length of all line segments in each
 
 #grid_length1 <- filter(grid_length, !is.na(length)) # filter out cells without line segments
 
-mutate(grid_length, length = ifelse(is.na(length), 0, length)) # or set length to 0 for cells without lines
+#mutate(grid_length, length = ifelse(is.na(length), 0, length)) # or set length to 0 for cells without lines
 ```
 
 
@@ -123,17 +129,31 @@ grid_length <- drop_units(grid_length) # drop units feature for easy manipulatio
 
 ggplot() +
   geom_sf(data = grid_length, aes(fill = length)) +
+  geom_sf(data = boundary) +
   scale_fill_gradientn(colors = sf.colors()) +
   labs(fill = "total road length (m)")
 ```
 
 
 ```{r}
-centroids <- st_centroid(grid_length) # get points at centroid of each grid cell
+#subset the grid by only those cells that fall completely within the boundary to avoid edge effects
+overlay <- st_join(grid_length, boundary, join = st_covered_by, left = FALSE)
+
+ggplot() +
+  geom_sf(data = boundary) +
+  geom_sf(data = overlay, aes(fill = length)) +
+  scale_fill_gradientn(colors = sf.colors())
+
+
+```
+
+
+```{r}
+centroids <- st_centroid(overlay) # get points at centroid of each grid cell
 
 # Visualize
 ggplot() +
-  geom_sf(data = grid_length, aes(fill = length)) +
+  geom_sf(data = overlay, aes(fill = length)) +
   scale_fill_gradientn(colors = sf.colors()) + 
   geom_sf(data = centroids) +
   labs(fill = "total road length (m)")
@@ -141,7 +161,7 @@ ggplot() +
 
 Extract grid cell values to centroids
 ```{r}
-grid_points <- st_join(centroids, grid_length, join = st_within) # spatial join
+grid_points <- st_join(centroids, overlay, join = st_within) # spatial join
 
 # Visualize
 ggplot() +
@@ -165,7 +185,7 @@ line_plot <- ggplot() +
   labs(color = "length(m)")
 
 grid_plot <- ggplot() +
-  geom_sf(data = grid_length, aes(fill = length)) +
+  geom_sf(data = overlay, aes(fill = length)) +
   scale_fill_gradientn(colors = sf.colors()) +
   ggtitle("Line length aggregrated to grid cells") +
   labs(fill = "length (m)")
@@ -188,8 +208,8 @@ grid_points$lat <- round(st_coordinates(grid_points)[,2], 3)
 
 grid_points <- grid_points[,c("lon", "lat", "length.x")]
 
-st_write(grid_points, paste0(input_dir, "dc_roads.csv")) # Write to csv - sfc point geomtery is automatically dropped. Results in 3 columns of label value, longitude, and latitude
+#st_write(grid_points, paste0(input_dir, "dc_roads.csv")) # Write to csv - sfc point geomtery is automatically dropped. Results in 3 columns of label value, longitude, and latitude
 
-dc_roads <- read.csv("dc_roads.csv")
+#dc_roads <- read.csv("dc_roads.csv")
 ```
 
