@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE metadata SYSTEM "https://www.fgdc.gov/schemas/metadata/fgdc-std-001-1998.dtd">
+<metadata>
+    <idinfo>
+        <citation>
+            <citeinfo>
+                <origin>U.S. Geological Survey, National Geospatial Technical Operations Center</origin>
+                <pubdate>20220614</pubdate>
+                <title>USGS National Transportation Dataset (NTD) for District of Columbia (published 20220614)</title>
+                <geoform>vector digital data</geoform>
+                <pubinfo>
+                    <pubplace>Reston, VA</pubplace>
+                    <publish>U.S. Geological Survey</publish>
+                </pubinfo>
+            </citeinfo>
+        </citation>
+        <descript>
+            <abstract>Layers of geospatial data include roads, airports, trails, and railroads.</abstract>
+            <purpose>The geospatial data are from selected National Map data holdings and other government sources.</purpose>
+            <supplinf>This dataset contains transportation layers.</supplinf>
+        </descript>
+        <timeperd>
+            <timeinfo>
+                <rngdates>
+                    <begdate>20220614</begdate>
+                    <enddate>20220614</enddate>
+                </rngdates>
+            </timeinfo>
+            <current>publication date</current>
+        </timeperd>
+        <status>
+            <progress>Complete</progress>
+            <update>Irregular</update>
+        </status>
+        <spdom>
+            <bounding>
+                <westbc>-77.1197590001101</westbc>
+                <eastbc>-76.90939300043658</eastbc>
+                <northbc>38.99584499988731</northbc>
+                <southbc>38.791645000204255</southbc>
+            </bounding>
+        </spdom>
+        <keywords>
+            <theme>
+                <themekt>ISO 19115 Topic Category</themekt>
+                <themekey>transportation</themekey>
+            </theme>
+            <theme>
+                <themekt>None</themekt>
+                <themekey>Roads</themekey>
+                <themekey>Airports</themekey>
+                <themekey>Airstrips</themekey>
+                <themekey>Railways</themekey>
+                <themekey>Airport Complex</themekey>
+                <themekey>Airport Point</themekey>
+                <themekey>Airport Runway</themekey>
+                <themekey>Geographic names</themekey>
+                <themekey>Trail</themekey>
+                <themekey>Transportation</themekey>
+                <themekey>Waterway</themekey>
+                <themekey>Trails</themekey>
+                <themekey>National Transportation Dataset (NTD)</themekey>
+                <themekey>State</themekey>
+                <themekey>Esri Shapefile</themekey>
+            </theme>
+            <place>
+                <placekt>Geographic Names Information System</placekt>
+                <placekey>US</placekey>
+                <placekey>United States</placekey>
+            </place>
+        </keywords>
+        <accconst>None</accconst>
+        <useconst>None. However, users should be aware that temporal changes may have occurred since this data set was collected and that some parts
+			of this data may no longer represent actual surface conditions. Users should not use this data for critical applications without a full
+			awareness of its limitations. Acknowledgment of the U.S. Geological Survey would be appreciated for products derived from these
+			data.</useconst>
+        <browse>
+            <browsen>https://prd-tnm.s3.amazonaws.com/StagedProducts/Tran/Shape/TRAN_District_of_Columbia_State_Shape.jpg</browsen>
+            <browsed>Thumbnail JPG image</browsed>
+            <browset>JPEG</browset>
+        </browse>
+    </idinfo>
+    <dataqual>
+        <attracc>
+            <attraccr>Content is derived from USGS national geospatial databases. The data is owned and hosted by the USGS, but does not preclude
+				using data sources owned and hosted by other organizations, provided that these sources have been approved by the USGS data
+				program.</attraccr>
+        </attracc>
+        <logic>The data was extracted and updated according to standards set by the USGS.</logic>
+        <complete>Each layer is extracted from the USGS national geospatial databases.</complete>
+        <posacc>
+            <horizpa>
+                <horizpar>This product is compiled to meet National Map Accuracy Standards (NMAS). NMAS horizontal accuracy requires that at least 90
+					percent of well-defined points tested are within 0.02 inch of the true position.</horizpar>
+            </horizpa>
+            <vertacc>
+                <vertaccr>Vertical accuracy is not applicable to this dataset.</vertaccr>
+            </vertacc>
+        </posacc>
+        <lineage>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Federal Railroads Administration</origin>
+                        <pubdate>2011</pubdate>
+                        <title>Transportation, FRA Railroads</title>
+                        <geoform>Vector digital data</geoform>
+                        <othercit>Railroads are acquired annually from the FRA. Rail lines and sidings are converted into the National Transportation Dataset. The rail lines layer represents the freight lines of the nation's railroad system. The data set covers all 50 states and the District of Columbia, as well as territories and possessions of the United States. No rail lines exist in American Samoa, Guam, Northern Mariana Islands, and the Virgin Islands of the US.</othercit>
+                    </citeinfo>
+                </srccite>
+                <srcscale>24000</srcscale>
+                <typesrc>digital data</typesrc>
+                <srctime>
+                    <timeinfo>
+                        <rngdates>
+                            <begdate>2016</begdate>
+                            <enddate>2016</enddate>
+                        </rngdates>
+                    </timeinfo>
+                    <srccurr>publication date</srccurr>
+                </srctime>
+                <srccitea>Federal Railroads Administration</srccitea>
+                <srccontr>Main track centerlines</srccontr>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Federal Aviation Administration</origin>
+                        <pubdate>2012</pubdate>
+                        <title>Transportation, FAA Airports, Runways, Seaplane Bases, Heliports</title>
+                        <geoform>Vector digital data</geoform>
+                        <othercit>Airport points and runway polygons are for Federal Aviation Administration (FAA)-recognized public and private airports in the United States. USGS updates the National Transportation Dataset (NTD) airports, runways, heliports, and seaplane bases approximately bi-monthly using change detection of FAA aviation files.  In April 2020, USGS started creating the seaplane base and heliport layers. FAA is the primary source for seaplane bases and heliports. The National Geospatial-Intelligence Agency provided heliport updates for IN, KY, MI, MS, OH, and TN. Digital data were inspected for attribute accuracy, spatial accuracy, and completeness.</othercit>
+                        <onlink>http://www.faa.gov</onlink>
+                    </citeinfo>
+                </srccite>
+                <srcscale>24000</srcscale>
+                <typesrc>digital data</typesrc>
+                <srctime>
+                    <timeinfo>
+                        <rngdates>
+                            <begdate>2011</begdate>
+                            <enddate>2012</enddate>
+                        </rngdates>
+                    </timeinfo>
+                    <srccurr>publication date</srccurr>
+                </srctime>
+                <srccitea>Transportation - Airports</srccitea>
+                <srccontr>runways</srccontr>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Various government agencies and volunteer organizations</origin>
+                        <pubdate>2020</pubdate>
+                        <title>Transportation, Recreational Trails</title>
+                        <geoform>Vector digital data</geoform>
+                        <othercit>Recreational trails were first added to US Topo maps in 2013. The trails displayed on the US Topo are from multiple government agencies. Accuracy and currency vary by source and are the responsibility of the data owner. USGS evaluates the authoritativeness of the source but does not independently verify data accuracy. USGS does not modify the trails data except to remove duplicate trails and in some cases trails coincident with roads. Users should always consult local agencies for the most current trail information.                         
+							This is not a complete dataset and is subject to change at any time. Content will be added as data become available from land management agencies and other authoritative sources. This metadata section documents data sources for all maps, not this specific map. Trails listed here may not be present on all relevant maps due to schedule differences between data delivery and US Topo production schedules. US Topo does not portray access and travel management information about specific trails. Feature-level metadata is not provided in the US Topo product and there is no link between a line on the map and the source of that specific trail.  
+							Trails on federal lands were provided by U.S. Forest Service (USFS), National Park Service (NPS), U.S. Fish and Wildlife Service (USFWS), Bureau of Land Management (BLM), and the Tennessee Valley Authority (TVA). The sources of National Scenic Trails (NST) include: Continental Divide NST provided by the Continental Divide Trail Coalition in cooperation with the USFS; New England NST provided by NPS and the Appalachian Mountain Club; Ice Age NST provided by the volunteer organization Ice Age Trail Alliance in cooperation with NPS and Wisconsin Department of Natural Resources; Pacific Crest NST provided by USFS; Appalachian NST published by the Appalachian Trail Conservancy in cooperation with NPS and USFS; North Country NST provided by NPS; Arizona NST data published by AZGEO Clearinghouse in cooperation with USFS; Pacific Northwest NST provided by USFS; Natchez Trace NST provided by NPS; Florida NST provided by the USFS; Potomac Heritage NST provided by NPS. National Scenic Trails will have breaks in the network. This is due to lack of coverage provided by the trail source or a removal of trails coincident with roads. In some cases, USGS will replace a segment of NST on federal or state lands if the land management agency provides a more accurate trail centerline than the original NST source. The replaced segment will be designated as a National Scenic Trail. 
+							Trails from state partners are included and provided by the State departments of Natural Resources, Parks and Recreation, Parks and Wildlife, or similar departments. This data includes AK, AL, AR, CA, CO, CT, DC, DE, FL, HI, IA, ID, IN, KY, MA, MD, MI, MO, NC, ND, NE, NJ, NY, OH, PA, SD, TN, TX, UT, VA, VT, WA, WI, WV.  Additional state partner data will be integrated into the Trails dataset over time and may not be listed here. 
+							Some US Topo products may display trails provided by the International Mountain Bicycling Association (IMBA); however, IMBA trails are being phased out of USGS products and will not be shown on future versions of the map.</othercit>
+                        <onlink>https://nationalmap.usgs.gov</onlink>
+                        <onlink>https://www.nps.gov/subjects/nationaltrailssystem/index.htm</onlink>
+                        <onlink>http://www.pnts.org</onlink>
+                        <onlink>https://www.fws.gov/gis/data/national/</onlink>
+                        <onlink>https://data.fs.usda.gov/geodata/edw/datasets.php?dsetCategory=transportation</onlink>
+                        <onlink>https://landscape.blm.gov/geoportal/catalog/BLMNational/BLMNational.page</onlink>
+                        <onlink>https://appalachiantrail.org/</onlink>
+                        <onlink>http://www.iceagetrail.org/</onlink>
+                        <onlink>https://agic.az.gov/agic/geospatial-data-collections-and-resources</onlink>
+                        <onlink>https://continentaldividetrail.org/</onlink>
+                        <onlink>https://www.pnt.org/</onlink>
+                        <onlink>https://newenglandtrail.org/</onlink>
+                    </citeinfo>
+                </srccite>
+                <srcscale>24000</srcscale>
+                <typesrc>digital data</typesrc>
+                <srctime>
+                    <timeinfo>
+                        <rngdates>
+                            <begdate>2006</begdate>
+                            <enddate>2020</enddate>
+                        </rngdates>
+                    </timeinfo>
+                    <srccurr>publication date</srccurr>
+                </srctime>
+                <srccitea>Recreational Trails</srccitea>
+                <srccontr>Trail centerline, trail name, trail use type; availability of trail name and use type varies by source.</srccontr>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>U.S. Census Bureau, Geography Division</origin>
+                        <pubdate>2014</pubdate>
+                        <title>Transportation, Census Roads</title>
+                        <geoform>vector digital data</geoform>
+                        <othercit>Dataset source is Census Bureau MAF/TIGER database extracts in the form of TIGER/Line Shapefiles. The TIGER/Line shapefiles and related database files are an extract of selected geographic and cartographic information from the U.S.  Census Bureau's Master Address File/Topologically Integrated Geographic Encoding and Referencing (MAF/TIGER) Database (MTDB). The MTDB represents a seamless national file with no overlaps or gaps between parts, however, each TIGER/Line shapefile is designed to stand alone as an independent dataset, or they can be combined to cover the entire nation. The U.S. Geological Survey filters Census roads to remove driveways and short local unnamed road segments which are less than 500 feet in length. The USGS National Transportation Dataset functional road classification system is applied to the Census datasets. The functional road class includes, limited access highway, secondary highway, local connector, local road, 4wd, tunnel, ferry route, and closed. Closed roads were approved in 2020 to align with USFS schema and will be incorporated into the NTD in 2021. The original TIGER/Line Shapefile products are not copyrighted however TIGER/Line and Census TIGER are registered trademarks of the U.S. Census Bureau. The horizontal spatial accuracy information present in the TIGER/Line shapefiles is provided for the purposes of statistical analysis and census operations only and the data may not be suitable for high-precision measurement applications. Full metadata for TIGER/Line shapefiles is available from U.S. Census Bureau.</othercit>
+                        <onlink>http://www.census.gov/geo/maps-data/data/tiger.html</onlink>
+                    </citeinfo>
+                </srccite>
+                <srcscale>24000</srcscale>
+                <typesrc>digital data</typesrc>
+                <srctime>
+                    <timeinfo>
+                        <rngdates>
+                            <begdate>2013</begdate>
+                            <enddate>2018</enddate>
+                        </rngdates>
+                    </timeinfo>
+                    <srccurr>publication date</srccurr>
+                </srctime>
+                <srccitea>Roads - Census</srccitea>
+                <srccontr>Road centerlines, route numbers, road classification, street names</srccontr>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Alaska Railroad Corporation</origin>
+                        <pubdate>2012</pubdate>
+                        <title>Transportation, ARC Railroads</title>
+                        <geoform>Vector digital data</geoform>
+                        <othercit>This record applies to Alaska data only. Railroad data is provided by the Alaska Railroad Corporation and may not include other owner's rail features. Unpublished data provided directly to USGS. Current as of 2012. For more information,  contact Alaska Railroad Corporation, 327 W. Ship Creek Ave., Anchorage, AK. 99501, phone 907-265-3100, or email grunwaldm@akrrr.com</othercit>
+                        <onlink/>
+                    </citeinfo>
+                </srccite>
+                <srcscale>25000</srcscale>
+                <typesrc>digital data</typesrc>
+                <srctime>
+                    <timeinfo>
+                        <rngdates>
+                            <begdate>2012</begdate>
+                            <enddate>2012</enddate>
+                        </rngdates>
+                    </timeinfo>
+                    <srccurr>publication date</srccurr>
+                </srctime>
+                <srccitea>Railroads - Alaska Railroad Corporation</srccitea>
+                <srccontr>Main track centerlines</srccontr>
+            </srcinfo>
+            <srcinfo>
+                <srccite>
+                    <citeinfo>
+                        <origin>Alaska Department of Transportation</origin>
+                        <pubdate>2013</pubdate>
+                        <title>Transportation, AK DOT Roads</title>
+                        <geoform>Vector digital data</geoform>
+                        <othercit>This record applies to Alaska data only. Roads gathered from various state and local sources, integrated by the Alaska Department of Transportation (ADOT) and provided to USGS for use in USGS map products. This specific road dataset is unpublished, but earlier versions are published on the ADOT web site.</othercit>
+                        <onlink>http://www.dot.state.ak.us/stwdplng/mapping/</onlink>
+                    </citeinfo>
+                </srccite>
+                <srcscale>25000</srcscale>
+                <typesrc>digital data</typesrc>
+                <srctime>
+                    <timeinfo>
+                        <rngdates>
+                            <begdate>2013</begdate>
+                            <enddate>2013</enddate>
+                        </rngdates>
+                    </timeinfo>
+                    <srccurr>publication date</srccurr>
+                </srctime>
+                <srccitea>Roads - Alaska Department of Transportation</srccitea>
+                <srccontr>Road centerlines, road classification, street names</srccontr>
+            </srcinfo>
+            <procstep>
+                <procdesc>All geospatial content is taken from national geospatial databases under the stewardship of USGS data programs. The NAIP
+					imagery is provided by a seamless tile service that delivers image data at the resolution and quality of the source imagery. The
+					raster and vector data, including grids and collar information, are processed using ESRI ArcGIS software and exported. Map
+					formatting is performed using a custom application, which includes post-processing to embed the metadata XML document.</procdesc>
+                <procdate>20121105</procdate>
+            </procstep>
+        </lineage>
+    </dataqual>
+    <spdoinfo>
+        <direct>Vector</direct>
+        <ptvctinf>
+            <sdtsterm>
+                <sdtstype>Entity point</sdtstype>
+            </sdtsterm>
+            <sdtsterm>
+                <sdtstype>Void polygon composed of rings</sdtstype>
+            </sdtsterm>
+            <sdtsterm>
+                <sdtstype>Complete chain</sdtstype>
+                <ptvctcnt>6</ptvctcnt>
+            </sdtsterm>
+        </ptvctinf>
+    </spdoinfo>
+    <spref>
+        <horizsys>
+            <geograph>
+                <latres>0.00001</latres>
+                <longres>0.00001</longres>
+                <geogunit>Decimal degrees</geogunit>
+            </geograph>
+            <geodetic>
+                <horizdn>North American Datum of 1983</horizdn>
+                <ellips>Geodetic Reference System 80</ellips>
+                <semiaxis>6378137</semiaxis>
+                <denflat>298.2572221</denflat>
+            </geodetic>
+        </horizsys>
+    </spref>
+    <distinfo>
+        <distrib>
+            <cntinfo>
+                <cntorgp>
+                    <cntorg>U.S. Geological Survey, National Geospatial Technical Operations Center</cntorg>
+                </cntorgp>
+                <cntaddr>
+                    <addrtype>mailing and physical</addrtype>
+                    <address>1400 Independence Road</address>
+                    <city>Rolla</city>
+                    <state>MO</state>
+                    <postal>65401</postal>
+                </cntaddr>
+                <cntaddr>
+                    <addrtype>mailing and physical</addrtype>
+                    <address>Box 25046 Denver Federal Center</address>
+                    <city>Lakewood</city>
+                    <state>CO</state>
+                    <postal>80225</postal>
+                </cntaddr>
+                <cntvoice>1-888-ASK-USGS (1-888-275-8747)</cntvoice>
+                <cntemail>http://www.usgs.gov/ask/</cntemail>
+                <hours>Monday through Friday 8:00 AM to 4:00 PM</hours>
+                <cntinst>Metadata information can also be obtained through online services using The National Map Viewer, at
+					http://nationalmap.usgs.gov or EarthExplorer, at http://earthexplorer.usgs.gov or Ask USGS at http://www.usgs.gov/ask.</cntinst>
+            </cntinfo>
+        </distrib>
+        <resdesc>Downloadable Data</resdesc>
+        <distliab>No liability for content or accuracy is presumed by USGS for data.</distliab>
+        <stdorder>
+            <digform>
+                <digtinfo>
+                    <formname>Esri Shapefile</formname>
+                    <formvern>None</formvern>
+                    <formcont>Spatial objects with unique identifiers and coordinate data.</formcont>
+                    <filedec>ZIP lossless data compression has been applied using a DEFLATE algorithm.</filedec>
+                    <transize>3.64</transize>
+                </digtinfo>
+                <digtopt>
+                    <onlinopt>
+                        <computer>
+                            <networka>
+                                <networkr>https://prd-tnm.s3.amazonaws.com/StagedProducts/Tran/Shape/TRAN_District_of_Columbia_State_Shape.zip</networkr>
+                            </networka>
+                        </computer>
+                    </onlinopt>
+                </digtopt>
+            </digform>
+            <fees>None</fees>
+        </stdorder>
+    </distinfo>
+    <metainfo>
+        <metd>20220614</metd>
+        <metrd>20211001</metrd>
+        <metfrd>20221001</metfrd>
+        <metc>
+            <cntinfo>
+                <cntorgp>
+                    <cntorg>U.S. Geological Survey, National Geospatial Technical Operations Center</cntorg>
+                </cntorgp>
+                <cntaddr>
+                    <addrtype>mailing and physical</addrtype>
+                    <address>1400 Independence Road</address>
+                    <city>Rolla</city>
+                    <state>MO</state>
+                    <postal>65401</postal>
+                </cntaddr>
+                <cntaddr>
+                    <addrtype>mailing and physical</addrtype>
+                    <address>Box 25046 Denver Federal Center</address>
+                    <city>Lakewood</city>
+                    <state>CO</state>
+                    <postal>80225</postal>
+                </cntaddr>
+                <cntvoice>1-888-ASK-USGS (1-888-275-8747)</cntvoice>
+                <cntemail>http://www.usgs.gov/ask/</cntemail>
+                <hours>Monday through Friday 8:00 AM to 4:00 PM</hours>
+                <cntinst>Metadata information can also be obtained through online services using The National Map Viewer, at
+					http://nationalmap.usgs.gov or EarthExplorer, at http://earthexplorer.usgs.gov or Ask USGS at http://www.usgs.gov/ask.</cntinst>
+            </cntinfo>
+        </metc>
+        <metstdn>FGDC Content Standard for Digital Geospatial Metadata</metstdn>
+        <metstdv>FGDC-STD-001-1998</metstdv>
+    </metainfo>
+</metadata>
