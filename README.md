@@ -4,4 +4,4 @@ Each folder provides an example of label preparation, starting from different fo
 
 Further resources can be found at siml.berkeley.edu.
 
-The original published paper detailing the MOSAIKS can be found at [Rolf et al. “A generalizable and accessible approach to machine learning with global satellite imagery.” Nature Communications (2021)](https://www.nature.com/articles/s41467-021-24638-z).
+The original published paper detailing MOSAIKS can be found at [Rolf et al. “A generalizable and accessible approach to machine learning with global satellite imagery.” Nature Communications (2021)](https://www.nature.com/articles/s41467-021-24638-z).
