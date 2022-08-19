@@ -49,7 +49,7 @@ label_shp <- st_read(paste0(input_dir, label_shp_name)) # read in shapefile usin
 ```
 
     ## Reading layer `ecu_ica_landdegradation_geonode_jul2018' from data source 
-    ##   `/Users/benshen/CEGA/api_testing/ecu_soil_erosion_data/ecu_ica_landdegradation_geonode_jul2018.shp' 
+    ##   `/Users/benshen/CEGA/api_testing/polygon/ecu_soil_erosion_data/ecu_ica_landdegradation_geonode_jul2018.shp' 
     ##   using driver `ESRI Shapefile'
     ## Simple feature collection with 224 features and 9 fields
     ## Geometry type: MULTIPOLYGON
@@ -130,7 +130,9 @@ grid cell centroid.
 ``` r
 grid_sf <- st_as_sf(grid) # transform grid from sfc object to sf object for merging
 
-label_df<- st_join(grid_sf, label_shp_reprojected[,"ErosPr"], join = st_within, left = FALSE) # spatial join grid over shapefile, "ErosPr" is the desired attribute column of the example dataset
+#label_df<- st_join(grid_sf, label_shp_reprojected[,"ErosPr"], join = st_within, left = FALSE) # spatial join grid over shapefile, "ErosPr" is the desired attribute column of the example dataset
+
+label_df <- st_join(grid_sf, label_shp_reprojected[,c("ErosPr","DPA_CANTON")], join = st_within, left = FALSE) # spatial join grid over shapefile, "ErosPr" is the desired attribute column of the example dataset
 ```
 
 Plot check
@@ -138,6 +140,10 @@ Plot check
 <img src="shp_label_predictions_files/figure-gfm/unnamed-chunk-7-1.png" width="100%" height="100%" />
 
 ## 4. Output the grid to CSV to obtain features from File Query
+
+    ## Writing layer `ecu_erosion_label' to data source 
+    ##   `./ecu_erosion_label.csv' using driver `CSV'
+    ## Writing 8074 features with 4 fields and geometry type Point.
 
 # Query MOSAIKS Features from API
 
@@ -192,12 +198,12 @@ label <- label[with(label, order(lat, lon)),] #sort
 head(label, 5)
 ```
 
-    ##    ErosPr     lon    lat
-    ## 1 21.4603 -79.105 -4.975
-    ## 2 21.4603 -79.055 -4.975
-    ## 3 21.4603 -79.005 -4.975
-    ## 4 21.4603 -79.255 -4.925
-    ## 5 21.4603 -79.205 -4.925
+    ##    ErosPr DPA_CANTON     lon    lat
+    ## 1 21.4603       1902 -79.105 -4.975
+    ## 2 21.4603       1902 -79.055 -4.975
+    ## 3 21.4603       1902 -79.005 -4.975
+    ## 4 21.4603       1902 -79.255 -4.925
+    ## 5 21.4603       1902 -79.205 -4.925
 
 Merge features spatially with label.
 
@@ -227,21 +233,21 @@ print(paste0(num_na, " rows with NAs dropped. ", nrow(df), " observations in fin
     ## [1] "28 rows with NAs dropped. 8046 observations in final dataframe."
 
 ``` r
-head(df, c(5, 10)) # limited to 10 columns for sake of space. Actual dataframe contains 4003 columns
+head(df, c(5, 10)) # limited to 10 columns for sake of space
 ```
 
-    ##    ErosPr     lon    lat          X        X.1        X.2          X.3
-    ## 1 21.4603 -79.105 -4.975 0.16587991 0.42999491 0.13084383 0.0547036342
-    ## 2 21.4603 -79.055 -4.975 0.13666266 0.25447765 0.13536981 0.0285860952
-    ## 3 21.4603 -79.005 -4.975 0.10358148 0.17465281 0.11631227 0.0156488381
-    ## 4 21.4603 -79.255 -4.925 0.04870118 0.08788871 0.05642445 0.0027059496
-    ## 5 21.4603 -79.205 -4.925 0.05220752 0.08975811 0.04581843 0.0007529163
-    ##          X.4       X.5        X.6
-    ## 1 0.24663417 0.5299929 0.20095651
-    ## 2 0.15804757 0.3605235 0.18017522
-    ## 3 0.10863219 0.2195943 0.12967739
-    ## 4 0.04756720 0.1608833 0.08749487
-    ## 5 0.05369745 0.1631556 0.06835839
+    ##    ErosPr DPA_CANTON     lon    lat          X        X.1        X.2
+    ## 1 21.4603       1902 -79.105 -4.975 0.16587991 0.42999491 0.13084383
+    ## 2 21.4603       1902 -79.055 -4.975 0.13666266 0.25447765 0.13536981
+    ## 3 21.4603       1902 -79.005 -4.975 0.10358148 0.17465281 0.11631227
+    ## 4 21.4603       1902 -79.255 -4.925 0.04870118 0.08788871 0.05642445
+    ## 5 21.4603       1902 -79.205 -4.925 0.05220752 0.08975811 0.04581843
+    ##            X.3        X.4       X.5
+    ## 1 0.0547036342 0.24663417 0.5299929
+    ## 2 0.0285860952 0.15804757 0.3605235
+    ## 3 0.0156488381 0.10863219 0.2195943
+    ## 4 0.0027059496 0.04756720 0.1608833
+    ## 5 0.0007529163 0.05369745 0.1631556
 
 ## 6. Run a ridge regression of label on MOSAIKS features
 
@@ -254,6 +260,10 @@ then evaluate predictions in the test set. This separation of train and
 test set is important to address issues related to overfitting.
 
 ``` r
+#create dummy variables for fixed effects
+fe <- as.data.frame(model.matrix(~ df$DPA_CANTON - 1))
+df <- cbind(df,fe)
+
 ### Split data into training and test sets
 set.seed(100) 
 
@@ -262,20 +272,20 @@ index <- sample(1:nrow(df), 0.8*nrow(df))
 train <- df[index,] # Create the training data 
 test <- df[-index,] # Create the test data
 
-label_value <- "ErosPr" # set label attribute name in the dataframe, modify according to dataset
+#save test set lat/lons for plotting later
+plotting_coords <- subset(test, select = c(lon,lat))
+plotting_coords_train <- subset(train, select = c(lon,lat))
 
 # Create X matricies and y vectors from the train and test sets
 # Note that the glmnet function does not work with dataframes. Instead, they need to be converted to  numeric matrices  
 
-X_train <- as.matrix(subset(train, select = -c(get(label_value))))
+label_value <- "ErosPr" # set label attribute name in the dataframe, modify according to dataset
+
+X_train <- as.matrix(subset(train, select = -c(get(label_value),lat,lon,DPA_CANTON)))
 y_train <- train[,label_value]
 
-X_test <- as.matrix(subset(test, select = -c(get(label_value))))
+X_test <- as.matrix(subset(test, select = -c(get(label_value),lat,lon,DPA_CANTON)))
 y_test <- test[,label_value]
-
-#save test set lat/lons for plotting later
-plotting_coords <- subset(test, select = c(lon,lat))
-plotting_coords_train <- subset(train, select = c(lon,lat))
 ```
 
 Within our training dataset, we choose the penalization parameter
@@ -293,7 +303,7 @@ optimal_lambda <- cv_ridge$lambda.min
 print(paste0("optimal lambda: ", optimal_lambda))
 ```
 
-    ## [1] "optimal lambda: 1.11246413414451"
+    ## [1] "optimal lambda: 1.0616120957888"
 
 ## 7. Make predictions and evaluate performance
 
@@ -316,7 +326,7 @@ r2 <- (1 - SSE / SST)
 print(paste0('r2: ', r2))
 ```
 
-    ## [1] "r2: 0.566133081589242"
+    ## [1] "r2: 0.992821447155556"
 
 We can also make a scatter plot of labeled data against predictions.
 
@@ -341,26 +351,41 @@ Finally, we can compare the spatial distribution of label
 (i.e. observed) values with predicted values.
 
 <img src="shp_label_predictions_files/figure-gfm/unnamed-chunk-17-1.png" width="100%" height="100%" />
-Example application: One could predict soil erosion risk at higher
-spatial resolution. For example, areas along the Napo River in east
+Example application:  
+When predicting at a higher spatial resolution, you could recover local
+topographic effects. For example, areas along the Napo River in east
 Ecuador face a higher risk of soil erosion.
 
 ``` r
 #load water areas in ecuador 
 water_shp <- st_read(paste0(input_dir, 'ECU_wat/ECU_water_areas_dcw.shp')) # read in shapefile 
+```
+
+    ## Reading layer `ECU_water_areas_dcw' from data source 
+    ##   `/Users/benshen/CEGA/api_testing/polygon/ECU_wat/ECU_water_areas_dcw.shp' 
+    ##   using driver `ESRI Shapefile'
+    ## Simple feature collection with 86 features and 5 fields
+    ## Geometry type: MULTIPOLYGON
+    ## Dimension:     XY
+    ## Bounding box:  xmin: -91.5569 ymin: -4.649089 xmax: -75.19166 ymax: 1.310197
+    ## Geodetic CRS:  WGS 84
+
+``` r
 water_shp_reprojected <- st_transform(water_shp, crs = target_crs) # reproject water layer
 
 #plot  
 ggplot() +
 geom_point(data = map_plot_train, 
   aes(x=lon, y=lat, color= predicted), 
-  size = 3, alpha = 0.9) + 
-scale_color_distiller(palette = "YlGn", limits = c(0, scale_max)) +
+  size = 3.6, alpha = 0.99) + 
+scale_color_distiller(palette = "Spectral", limits = c(0,30)) +
 labs(x = "Longitude", y = "Latitude", title = "Napo River Basin", color = "Soil Erosion") +
 geom_sf(data =label_shp_reprojected, size = 0.3, alpha = 0.01, color = "grey39") +
-geom_sf(data =water_shp_reprojected, size = 0.1, alpha = 0.1, color = "blue1") + #water
+geom_sf(data =water_shp_reprojected, size = 0.1, alpha = 0.0001, color = "white") + #water
   coord_sf(
-  xlim = c(-78, -75),
+  xlim = c(-77.5, -75),
   ylim = c(-1.2, 0),
 )
 ```
+
+![](shp_label_predictions_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
