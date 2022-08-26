@@ -1,0 +1,57 @@
+---
+title: "points label prep"
+author: "Benjamin Shenouda"
+date: "2022-08-18"
+output: html_document
+---
+
+This notebook illustrates the process for preparing point label data for merging with MOSAIKS features. Since the MOSAIKS features are provided at the centroids of each grid cell, we simply have to assign our label point data to the nearest MOSAIKS dense grid cell in order to merge.
+
+The size of each dense grid cell is 0.01 x 0.01 degree, centered at 0.005 degree intervals.
+
+The data for this example is taken from [Keil and Chase, 2019](https://www.nature.com/articles/s41559-019-0799-0).
+
+```{r}
+library(sf)
+library(ggplot2)
+```
+
+```{r}
+
+input_dir <- "./"
+url <- 'https://raw.githubusercontent.com/petrkeil/global_tree_S/master/Data/Main_dataset_subset.csv'
+df <- read.csv(url)
+
+```
+
+Limit analysis to plots of land, excluding entire countries.
+
+```{r}
+df <- df[df$DAT_TYPE == "Plot", ]
+```
+
+Round coordinates to nearest tile centroid of the dense grid
+
+```{r}
+# Assign coordinates to nearest tile centroid
+lon <- round(round(df$Lon+.005,2) -.005,3)
+lat <- round(round(df$Lat+.005,2) -.005,3)
+
+# Remove original coordinates, and replace with tile centroids
+df <- cbind(lon, lat, subset(df, select = -c(Lat, Lon)))
+```
+
+Convert to sf object for simpler plotting
+
+```{r}
+df_sf <- st_as_sf(df, coords = c("lon", "lat"))
+
+ggplot() +
+  geom_sf(data = df_sf)
+```
+
+Write file out to csv for use in API file query
+```{r}
+write.csv(df, "tree_richness_label.csv")
+```
+
